@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 
 private const val TAG = "NerdLauncherActivity"
+
 class NerdLauncherActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -43,15 +44,32 @@ class NerdLauncherActivity : AppCompatActivity() {
         recyclerView.adapter = ActivityAdapter(activities)
     }
 
-    private class ActivityHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private class ActivityHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+
         private val nameTextView  = itemView as TextView
         private lateinit var resolveInfo: ResolveInfo
+
+        init {
+            nameTextView.setOnClickListener(this)
+        }
+
 
         fun bindActivity(resolveInfo: ResolveInfo) {
             this.resolveInfo = resolveInfo
             val packageManager = itemView.context.packageManager
             val appName  = resolveInfo.loadLabel(packageManager).toString()
             nameTextView.text = appName
+        }
+
+        override fun onClick(view: View) {
+            val activityInfo = resolveInfo.activityInfo
+
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                setClassName(activityInfo.applicationInfo.packageName,activityInfo.name)
+            }
+
+            val context = view.context
+            context.startActivity(intent)
         }
     }
 
